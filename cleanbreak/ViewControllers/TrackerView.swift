@@ -5,7 +5,7 @@ struct TrackerView: View {
     
     var body: some View {
         ZStack {
-            Color.black  // Set the entire background to black
+            Color("DarkBlue")  // Set the entire background to black
                 .ignoresSafeArea()
             
             VStack {

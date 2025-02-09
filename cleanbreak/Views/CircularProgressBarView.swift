@@ -43,4 +43,5 @@ struct CircularProgressBarView: View {
 
 #Preview {
     CircularProgressBarView(progress: 0.6)  // Example preview with 60% progress
+    
 }
