@@ -13,7 +13,7 @@ struct cleanbreakApp: App {
 
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            TrackerView()
                 .environment(\.managedObjectContext, persistenceController.container.viewContext)
         }
     }

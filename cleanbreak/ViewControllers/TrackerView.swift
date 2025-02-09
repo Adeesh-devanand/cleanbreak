@@ -1,88 +1,61 @@
-//
-//  ContentView.swift
-//  cleanbreak
-//	
-//  Created by user270007 on 2/9/25.
-//
-
 import SwiftUI
-import CoreData
 
-struct ContentView: View {
-    @Environment(\.managedObjectContext) private var viewContext
-
-    @FetchRequest(
-        sortDescriptors: [NSSortDescriptor(keyPath: \Item.timestamp, ascending: true)],
-        animation: .default)
-    private var items: FetchedResults<Item>
-
+struct TrackerView: View {
+    @StateObject private var trackerData = TrackerDataModel()  // Using the model
+    
     var body: some View {
-        NavigationView {
-            List {
-                ForEach(items) { item in
-                    NavigationLink {
-                        Text("Item at \(item.timestamp!, formatter: itemFormatter)")
-                    } label: {
-                        Text(item.timestamp!, formatter: itemFormatter)
-                    }
+        ZStack {
+            Color.black  // Set the entire background to black
+                .ignoresSafeArea()
+            
+            VStack {
+                Text("Today's Calories")
+                    .font(.title)
+                    .fontWeight(.bold)
+                    .foregroundColor(.white)  // White for contrast
+                    .padding(.top, 20)
+                
+                // Circular Progress Bar
+                CircularProgressBarView(progress: trackerData.calorieProgress)
+                    .frame(width: 200, height: 200)
+                    .padding()
+                
+                // Macro Tracking Section
+                VStack(alignment: .leading, spacing: 10) {
+                    Text("Macros Breakdown")
+                        .font(.headline)
+                        .foregroundColor(.white)
+                        .padding(.bottom, 5)
+                    
+                    // Macro Progress Bars (dynamic values)
+                    MacroBarView(label: "Protein", progress: trackerData.proteinProgress, color: .green)
+                    MacroBarView(label: "Carbs", progress: trackerData.carbProgress, color: .orange)
+                    MacroBarView(label: "Fats", progress: trackerData.fatProgress, color: .red)
                 }
-                .onDelete(perform: deleteItems)
-            }
-            .toolbar {
-#if os(iOS)
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    EditButton()
+                .padding()
+                
+                // Button to Simulate Data Update (Replace with Bluetooth later)
+                Button(action: {
+                    trackerData.updateData()
+                }) {
+                    Text("Add Intake")
+                        .font(.headline)
+                        .padding()
+                        .frame(maxWidth: .infinity)
+                        .background(Color.blue)
+                        .foregroundColor(.white)
+                        .cornerRadius(10)
+                        .shadow(color: .blue.opacity(0.5), radius: 10, x: 0, y: 5) // Soft glow effect
+                        .padding(.horizontal)
                 }
-#endif
-                ToolbarItem {
-                    Button(action: addItem) {
-                        Label("Add Item", systemImage: "plus")
-                    }
-                }
+                
+                Spacer()
             }
-            Text("Select an item")
-        }
-    }
-
-    private func addItem() {
-        withAnimation {
-            let newItem = Item(context: viewContext)
-            newItem.timestamp = Date()
-
-            do {
-                try viewContext.save()
-            } catch {
-                // Replace this implementation with code to handle the error appropriately.
-                // fatalError() causes the application to generate a crash log and terminate. You should not use this function in a shipping application, although it may be useful during development.
-                let nsError = error as NSError
-                fatalError("Unresolved error \(nsError), \(nsError.userInfo)")
-            }
-        }
-    }
-
-    private func deleteItems(offsets: IndexSet) {
-        withAnimation {
-            offsets.map { items[$0] }.forEach(viewContext.delete)
-
-            do {
-                try viewContext.save()
-            } catch {
-                // Replace this implementation with code to handle the error appropriately.
-                // fatalError() causes the application to generate a crash log and terminate. You should not use this function in a shipping application, although it may be useful during development.
-                let nsError = error as NSError
-                fatalError("Unresolved error \(nsError), \(nsError.userInfo)")
-            }
+            .padding()
         }
     }
 }
 
-private let itemFormatter: DateFormatter = {
-    let formatter = DateFormatter()
-    formatter.dateStyle = .short
-    formatter.timeStyle = .medium
-    return formatter
-}()
-
 #Preview {
-    ContentView().environment(\.managedObjectContext, PersistenceController.preview.container.viewContext)
+    TrackerView()
 }
