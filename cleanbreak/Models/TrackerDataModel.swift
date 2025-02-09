@@ -18,6 +18,10 @@ class TrackerDataModel: ObservableObject {
         return min(consumedCalories / totalCalories, 1.0)
     }
     
+    var remainingCalories: Float {
+        return max(totalCalories - consumedCalories, 0) // Ensure non-negative
+    }
+    
     var proteinProgress: Float {
         return min(consumedProtein / proteinGoal, 1.0)
     }
