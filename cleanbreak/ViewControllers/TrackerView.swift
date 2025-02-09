@@ -1,56 +1,46 @@
 import SwiftUI
 
 struct TrackerView: View {
-    @StateObject private var trackerData = TrackerDataModel()  // Using the model
+    @State private var selectedTab = 0 // Tracks the selected tab
     
-    var body: some View {
-        ZStack {
-//            Color("DarkBlue")  // Set the entire background to black
-            Color.black
-                .ignoresSafeArea()
-            
-            VStack(spacing: 25) {
-                            ZStack {
-                                // Circular Progress Bar
-                                CircularProgressBarView(progress: trackerData.calorieProgress)
-                                    .frame(width: 200, height: 200)
-                                
-                                // Calories Info (Left & Right)
-                                CaloriesOverlayView(consumed: trackerData.consumedCalories, remaining: trackerData.remainingCalories, offset: 25)
-
-                            }
-                            .padding()
-                        
-                
-                // Macro Tracking Section
-                HStack(spacing: 20) { // Adds spacing between bars
-                    MacroBarView(label: "Protein", progress: trackerData.proteinProgress, color: .green)
-                    MacroBarView(label: "Carbs", progress: trackerData.carbProgress, color: .orange)
-                    MacroBarView(label: "Fats", progress: trackerData.fatProgress, color: .red)
-                }
-                .padding(.horizontal)
-                .frame(maxWidth: .infinity, minHeight: 50) // Ensures horizontal layout
-                
-                Spacer()
+    init() {
+        // Customize the tab bar appearance (iOS 15+)
+        let appearance = UITabBarAppearance()
+        appearance.configureWithTransparentBackground() // Makes tab bar translucent
+        appearance.backgroundEffect = UIBlurEffect(style: .systemUltraThinMaterial) // Glass-like blur effect
+        appearance.stackedLayoutAppearance.selected.iconColor = UIColor.systemTeal
+        appearance.stackedLayoutAppearance.selected.titleTextAttributes = [.foregroundColor: UIColor.systemTeal]
+        appearance.stackedLayoutAppearance.normal.iconColor = UIColor.lightGray
+        appearance.stackedLayoutAppearance.normal.titleTextAttributes = [.foregroundColor: UIColor.lightGray]
         
-                
-                // Button to Simulate Data Update (Replace with Bluetooth later)
-                Button(action: {
-                    trackerData.updateData()
-                }) {
-                    Text("Add Intake")
-                        .font(.headline)
-                        .padding()
-                        .frame(maxWidth: .infinity)
-                        .background(Color.blue)
-                        .foregroundColor(.white)
-                        .cornerRadius(10)
-                        .shadow(color: .blue.opacity(0.5), radius: 10, x: 0, y: 5) // Soft glow effect
-                        .padding(.horizontal)
+        UITabBar.appearance().standardAppearance = appearance
+        UITabBar.appearance().scrollEdgeAppearance = appearance
+    }
+
+    var body: some View {
+        TabView(selection: $selectedTab) {
+//            MainTrackingView() // The main calorie/macros screen
+//                .tabItem {
+//                    Image(systemName: "flame.fill")
+//                    Text("Track")
+//                }
+//                .tag(0)
+
+            ProgressViewScreen() // Placeholder for future long-term progress
+                .tabItem {
+                    Image(systemName: "chart.bar.fill")
+                    Text("Progress")
                 }
-            }
-            .padding()
+                .tag(1)
+
+            SettingsView() // Placeholder for future settings page
+                .tabItem {
+                    Image(systemName: "gearshape.fill")
+                    Text("Settings")
+                }
+                .tag(2)
         }
+        .accentColor(.teal) // Set the active tab color to teal
     }
 }
 

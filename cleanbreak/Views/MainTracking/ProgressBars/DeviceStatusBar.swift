@@ -1,6 +1,6 @@
 import SwiftUI
 
-struct MacroBarView: View {
+struct DeviceStatusBar: View {
     var label: String
     var progress: Float
     var color: Color  // Different colors for each macro
@@ -37,9 +37,8 @@ struct MacroBarView: View {
 
 #Preview {
     VStack {
-        MacroBarView(label: "Protein", progress: 0.5, color: .green)
-        MacroBarView(label: "Carbs", progress: 0.7, color: .orange)
-        MacroBarView(label: "Fats", progress: 0.4, color: .red)
+        DeviceStatusBar(label: "Juice", progress: 0.75, color: .green)
+        DeviceStatusBar(label: "Battery", progress: 0.5, color: .orange)
     }
     .padding()
 }
