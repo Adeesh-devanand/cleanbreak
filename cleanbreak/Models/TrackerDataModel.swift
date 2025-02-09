@@ -8,6 +8,19 @@ class TrackerDataModel: ObservableObject {
     var progress: CGFloat {
         return 1 - (remainingMinutes / totalMinutes) // Convert remaining time to progress (0-1)
     }
+    
+    var juiceLevel: CGFloat {
+//        return 1 - (remainingMinutes / totalMinutes) // Convert remaining time to progress (0-1)
+        return 1
+    }
+    
+    var batteryLevel: CGFloat {
+        return 1 - (remainingMinutes / totalMinutes) // Convert remaining time to progress (0-1)
+    }
+    
+    var productName: String {
+        return "Clean Break v1.2" // Convert remaining time to progress (0-1)
+    }
 
     func updateTime(by minutes: CGFloat) {
         remainingMinutes = max(remainingMinutes - minutes, 0) // Decrease time safely
