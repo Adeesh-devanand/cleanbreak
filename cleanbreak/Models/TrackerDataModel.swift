@@ -8,7 +8,7 @@ class TrackerDataModel: ObservableObject {
 
     // Timer and progress tracking
     @Published var totalMinutes: CGFloat = 180  // Total duration (e.g., 3 hours)
-    @Published var timeElapsed: CGFloat = 175  // Time left (e.g., 2h 15m)
+    @Published var timeElapsed: CGFloat = 160  // Time left (e.g., 2h 15m)
 
     // Device levels
     @Published var juiceLevel: CGFloat = 1.0
