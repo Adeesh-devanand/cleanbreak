@@ -1,7 +1,12 @@
 import SwiftUI
 
 struct BluetoothView: View {
-    @State private var isBluetoothEnabled = false // Toggle Bluetooth status
+    @ObservedObject var trackerData: TrackerDataModel
+    @State private var isBluetoothEnabled = false
+    
+    init(trackerData: TrackerDataModel, isBluetoothEnabled: Bool = false) {
+        self.trackerData = trackerData
+    }
 
     var body: some View {
         ZStack {
@@ -58,6 +63,28 @@ struct BluetoothView: View {
                     .padding(.vertical, 50)
                     
                     Spacer()
+                    
+                    HStack(spacing: 20){
+                        Button(action: {
+                            isBluetoothEnabled = false// Action for when user can't find device
+                        }) {
+                            Text("Turn off Bluetooth")
+                                .fontWeight(.bold)
+                                .font(.footnote)
+                                .foregroundColor(Color.white)
+                                .cornerRadius(100)
+                        }
+                        
+                        Button(action: {
+                            trackerData.isConnected = true
+                        }) {
+                            Text("Simulate Connect")
+                                .fontWeight(.bold)
+                                .font(.footnote)
+                                .foregroundColor(Color.white)
+                                .cornerRadius(100)
+                        }
+                    }
                 }
             } else {
                VStack {
@@ -75,7 +102,7 @@ struct BluetoothView: View {
 
                        // Discovering Text
                        Text("Turn on Bluetooth to discover nearby product.")
-                           .font(.footnote)
+                           .font(.callout)
                            .frame(maxWidth:.infinity)
                            .fontWeight(.semibold)
                            .foregroundColor(.white)
@@ -94,26 +121,15 @@ struct BluetoothView: View {
                        }
                        .padding(.top, 20) // Space from text above
                    }
-                   .padding(.horizontal, 40) // Maintain horizontal spacing
                    .padding(.vertical, 50)
                    
                    Spacer()
                }
             }
         }
-        .onAppear {
-            checkBluetoothStatus()
-        }
-    }
-
-    // Simulate checking Bluetooth status (replace with real check)
-    private func checkBluetoothStatus() {
-        DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
-            isBluetoothEnabled = false // Simulate Bluetooth being off initially
-        }
     }
 }
 
 #Preview {
-    BluetoothView()
+    BluetoothView(trackerData: TrackerDataModel())
 }

@@ -1,7 +1,11 @@
 import SwiftUI
 
 struct MainView: View {
-    @StateObject private var trackerData = TrackerDataModel()
+    @ObservedObject private var trackerData: TrackerDataModel
+    
+    init(trackerData: TrackerDataModel) {
+        self.trackerData = trackerData
+    }
     
     var color: Color {
         return trackerData.progress == 1 ? .green : .mint
@@ -13,11 +17,11 @@ struct MainView: View {
             Color.black.ignoresSafeArea()
 
             VStack {
-                Text(trackerData.productName)
+                Text("Connected: \(trackerData.productName)")
                     .font(.title3)
                     .fontWeight(.bold)
                     .foregroundColor(.gray)
-                    .frame(width: 250, height: 50)
+                    .frame(width: 300, height: 50)
                 
 
                 // Lock Timer with Time Display
@@ -41,5 +45,5 @@ struct MainView: View {
 }
 
 #Preview {
-    MainView()
+    MainView(trackerData: TrackerDataModel())
 }

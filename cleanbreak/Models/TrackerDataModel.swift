@@ -8,7 +8,7 @@ class TrackerDataModel: ObservableObject {
 
     // Timer and progress tracking
     @Published var totalMinutes: CGFloat = 180  // Total duration (e.g., 3 hours)
-    @Published var timeElapsed: CGFloat = 135  // Time left (e.g., 2h 15m)
+    @Published var timeElapsed: CGFloat = 175  // Time left (e.g., 2h 15m)
 
     // Device levels
     @Published var juiceLevel: CGFloat = 1.0
@@ -20,10 +20,11 @@ class TrackerDataModel: ObservableObject {
 
     private var bluetoothManager: MockBluetoothManager
     private var cancellables = Set<AnyCancellable>()
+    private var timerCancellable: AnyCancellable?
 
     init() {
         self.bluetoothManager = MockBluetoothManager()
-        bindToBluetoothManager()
+//        bindToBluetoothManager()
     }
 
     /// Observes changes from BluetoothManager and updates UI properties
@@ -59,6 +60,22 @@ class TrackerDataModel: ObservableObject {
             .receive(on: DispatchQueue.main)
             .assign(to: &$batteryLevel)
     }
+    
+    /// Starts a countdown timer
+    public func startCountdown() {
+        self.timerCancellable?.cancel()
+        timerCancellable = Timer.publish(every: 2, on: .main, in: .common)  // Update every minute
+            .autoconnect()
+            .sink { [weak self] _ in
+                guard let self = self else { return }
+                if self.timeElapsed < self.totalMinutes {
+                    self.timeElapsed += 1  // Increase elapsed time
+                } else {
+                    self.timerCancellable?.cancel()  // Stop the timer when time runs out
+                }
+            }
+    }
+
 
     var progress: CGFloat {
         return min (1, timeElapsed / totalMinutes) // Convert remaining time to progress (0-1)
