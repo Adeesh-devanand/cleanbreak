@@ -2,38 +2,76 @@ import SwiftUI
 import Combine
 
 class TrackerDataModel: ObservableObject {
+    // Bluetooth connection properties
+    @Published var isConnected: Bool = false
+    @Published var peripheralName: String = "Unknown Device"
+
+    // Timer and progress tracking
     @Published var totalMinutes: CGFloat = 180  // Total duration (e.g., 3 hours)
-    @Published var remainingMinutes: CGFloat = 135  // Time left (e.g., 2h 15m)
+    @Published var timeElapsed: CGFloat = 135  // Time left (e.g., 2h 15m)
+
+    // Device levels
+    @Published var juiceLevel: CGFloat = 1.0
+    @Published var batteryLevel: CGFloat = 0.5
+
+    var productName: String {
+        return "Clean Break v1.2"
+    }
+
+    private var bluetoothManager: MockBluetoothManager
+    private var cancellables = Set<AnyCancellable>()
+
+    init() {
+        self.bluetoothManager = MockBluetoothManager()
+        bindToBluetoothManager()
+    }
+
+    /// Observes changes from BluetoothManager and updates UI properties
+    private func bindToBluetoothManager() {
+        bluetoothManager.$isConnected
+            .receive(on: DispatchQueue.main)
+            .assign(to: &$isConnected)
+
+        bluetoothManager.$peripheralName
+            .receive(on: DispatchQueue.main)
+            .assign(to: &$peripheralName)
+
+        bluetoothManager.$totalTimer
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] newValue in
+                self?.totalMinutes = newValue
+            }
+            .store(in: &cancellables)
+
+        bluetoothManager.$timeElapsed
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] newValue in
+                guard let self = self else { return }
+                self.timeElapsed = newValue
+            }
+            .store(in: &cancellables)
+
+        bluetoothManager.$juiceLevel
+            .receive(on: DispatchQueue.main)
+            .assign(to: &$juiceLevel)
+
+        bluetoothManager.$batteryLevel
+            .receive(on: DispatchQueue.main)
+            .assign(to: &$batteryLevel)
+    }
 
     var progress: CGFloat {
-        return 1 - (remainingMinutes / totalMinutes) // Convert remaining time to progress (0-1)
-    }
-    
-    var juiceLevel: CGFloat {
-//        return 1 - (remainingMinutes / totalMinutes) // Convert remaining time to progress (0-1)
-        return 1
-    }
-    
-    var batteryLevel: CGFloat {
-        return 1 - (remainingMinutes / totalMinutes) // Convert remaining time to progress (0-1)
-    }
-    
-    var productName: String {
-        return "Clean Break v1.2" // Convert remaining time to progress (0-1)
-    }
-
-    func updateTime(by minutes: CGFloat) {
-        remainingMinutes = max(remainingMinutes - minutes, 0) // Decrease time safely
+        return min (1, timeElapsed / totalMinutes) // Convert remaining time to progress (0-1)
     }
 
     func formatTime() -> String {
-        let hours = Int(remainingMinutes) / 60
-        let mins = Int(remainingMinutes) % 60
+        let hours = Int(totalMinutes - timeElapsed) / 60
+        let mins = Int(totalMinutes - timeElapsed) % 60
 
         if hours >= 6 {
-            return "\(hours)h" // Show only hours if hours >= 10
+            return "\(hours)h" // Show only hours if hours >= 6
         } else if hours > 0 {
-            return "\(hours)h \(mins)m" // Show both hours and minutes if hours is 1-9
+            return "\(hours)h \(mins)m" // Show both hours and minutes if hours is 1-5
         } else {
             return "\(mins)m" // Show only minutes if hours is 0
         }

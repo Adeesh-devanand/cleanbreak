@@ -3,11 +3,11 @@ import SwiftUI
 import SwiftUI
 
 struct TimerArc: View {
-    var color: Color = .mint
-    //    var color: Gradient = Gradient(colors: [Color.mint.opacity(0.8), Color.teal])
+    var color: Color
     var gapAngle: Double = 15 // Change this to control the bottom gap size
-    
-    @ObservedObject var trackerData: TrackerDataModel
+    var progress: CGFloat
+    var time: String
+
     
 
     var body: some View {
@@ -17,23 +17,30 @@ struct TimerArc: View {
             let strokeWidth = size * 0.05
             let totalArc: Double = 360 - gapAngle
             let startAngle: Double = -270 + (gapAngle / 2)
-            let endAngle: Double = startAngle + (Double(trackerData.progress) * totalArc)
+            let endAngle: Double = startAngle + (Double(progress) * totalArc)
 
             ZStack {
                 // Background Arc (Full Outline)
                 ArcShape(startAngle: startAngle, endAngle: 90 - (gapAngle / 2))
-                    .stroke(Color.gray.opacity(0.3), style: StrokeStyle(lineWidth: strokeWidth, lineCap: .round))
+                    .stroke(color.opacity(0.4), style: StrokeStyle(lineWidth: strokeWidth, lineCap: .round))
 
                 // Foreground Progress Arc (Now updates with high precision)
                 ArcShape(startAngle: startAngle, endAngle: endAngle)
                     .stroke(color, style: StrokeStyle(lineWidth: strokeWidth, lineCap: .round))
-                    .animation(.easeInOut(duration: 1), value: trackerData.progress) // Ensures smooth updates
+                    .animation(.easeInOut(duration: 1), value: progress) // Ensures smooth updates
                 
                 // Lock Animation at the Center (Dynamic Size)
-                FadingLockView(size: size)
                 
+                if (progress == 1) {
+                    UnlockView(size: size, color: color)
+
+                } else {
+                    LockView(size: size, color: color)
+                }
+                
+                                
                 // Time Remaining Displayed in the Gap
-                Text(trackerData.formatTime())
+                Text(time)
                     .font(.title3)
                     .fontWeight(.bold)
                     .foregroundColor(.gray)
@@ -67,6 +74,6 @@ struct ArcShape: Shape {
 }
 
 #Preview {
-    TimerArc(gapAngle: 50, trackerData: TrackerDataModel())
+    TimerArc(color: .mint, gapAngle: 50, progress: 0.1, time: "1h")
             .frame(width: 200, height: 200)
 }

@@ -2,6 +2,10 @@ import SwiftUI
 
 struct MainView: View {
     @StateObject private var trackerData = TrackerDataModel()
+    
+    var color: Color {
+        return trackerData.progress == 1 ? .green : .mint
+        }    //    var color: Gradient = Gradient(colors: [Color.mint.opacity(0.8), Color.teal])
 
     var body: some View {
         ZStack {
@@ -15,16 +19,16 @@ struct MainView: View {
                     .foregroundColor(.gray)
                     .frame(width: 250, height: 50)
                 
-                Spacer()
 
                 // Lock Timer with Time Display
-                TimerArc(gapAngle: 50, trackerData: trackerData)
+                TimerArc(color: color, gapAngle: 50, progress: trackerData.progress, time: trackerData.formatTime())
                     .frame(width: 250, height: 250)
+                    .padding(.top, 80)
 
                 // Horizontal Device Status Bars (Juice & Battery)
                 HStack(spacing: 35) {
-                    DeviceStatusBar(label: "Juice", progress: trackerData.juiceLevel)
-                    DeviceStatusBar(label: "Battery", progress: trackerData.batteryLevel)
+                    DeviceStatusBar(color: color, label: "Juice", progress: trackerData.juiceLevel)
+                    DeviceStatusBar(color: color, label: "Battery", progress: trackerData.batteryLevel)
                 }
                 .padding(.top, 40)
                 .padding(.horizontal, 30) // Reduce horizontal padding for better spacing

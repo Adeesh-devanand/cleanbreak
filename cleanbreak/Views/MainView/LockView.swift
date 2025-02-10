@@ -1,7 +1,8 @@
 import SwiftUI
 
-struct FadingLockView: View {
+struct LockView: View {
     var size: CGFloat // Dynamic lock size
+    var color: Color
     @State private var fadeInOut = false // Controls fade animation
 
     var body: some View {
@@ -11,7 +12,7 @@ struct FadingLockView: View {
                 .resizable()
                 .scaledToFit()
                 .frame(width: size * 0.4, height: size * 0.4) // 40% of the arc size
-                .foregroundColor(.mint)
+                .foregroundColor(color)
                 .opacity(fadeInOut ? 1 : 0.5) // Fades in and out
                 .animation(
                     Animation.easeInOut(duration: 1.5).repeatForever(autoreverses: true),
@@ -26,5 +27,5 @@ struct FadingLockView: View {
 }
 
 #Preview {
-    FadingLockView(size: 200) // Testing with different sizes
+    LockView(size: 200, color: .mint) // Testing with different sizes
 }
