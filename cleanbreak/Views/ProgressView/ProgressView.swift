@@ -1,6 +1,6 @@
 import SwiftUI
 
-struct ProgressViewScreen: View {
+struct ProgressView: View {
     var body: some View {
         ZStack {
             Color.black.ignoresSafeArea()
@@ -12,5 +12,5 @@ struct ProgressViewScreen: View {
 }
 
 #Preview {
-    ProgressViewScreen()
+    ProgressView()
 }

@@ -2,7 +2,7 @@ import SwiftUI
 
 import SwiftUI
 
-struct ProgressView: View {
+struct TimerArc: View {
     var color: Color = .mint
     //    var color: Gradient = Gradient(colors: [Color.mint.opacity(0.8), Color.teal])
     var gapAngle: Double = 15 // Change this to control the bottom gap size
@@ -67,6 +67,6 @@ struct ArcShape: Shape {
 }
 
 #Preview {
-    ProgressView(gapAngle: 50, trackerData: TrackerDataModel())
+    TimerArc(gapAngle: 50, trackerData: TrackerDataModel())
             .frame(width: 200, height: 200)
 }

@@ -26,7 +26,7 @@ struct TrackerView: View {
                 }
                 .tag(0)
 
-            ProgressViewScreen() // Placeholder for future long-term progress
+            ProgressView() // Placeholder for future long-term progress
                 .tabItem {
                     Image(systemName: "chart.bar.fill")
                     Text("Progress")

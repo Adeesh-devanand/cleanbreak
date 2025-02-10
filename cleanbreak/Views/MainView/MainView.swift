@@ -18,16 +18,16 @@ struct MainView: View {
                 Spacer()
 
                 // Lock Timer with Time Display
-                ProgressView(gapAngle: 50, trackerData: trackerData)
+                TimerArc(gapAngle: 50, trackerData: trackerData)
                     .frame(width: 250, height: 250)
 
                 // Horizontal Device Status Bars (Juice & Battery)
-                HStack(spacing: 20) {
+                HStack(spacing: 35) {
                     DeviceStatusBar(label: "Juice", progress: trackerData.juiceLevel)
                     DeviceStatusBar(label: "Battery", progress: trackerData.batteryLevel)
                 }
                 .padding(.top, 40)
-                .padding(.horizontal, 20) // Reduce horizontal padding for better spacing
+                .padding(.horizontal, 30) // Reduce horizontal padding for better spacing
                 .frame(maxWidth: .infinity, minHeight: 50)
 
                 Spacer()

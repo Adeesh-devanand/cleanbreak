@@ -19,10 +19,11 @@ struct RippleEffectView: View {
                     )
             }
 
-            Image("Logo") // Replace with actual logo
+            Image(systemName: "flame.fill") // Replace with actual logo
                 .resizable()
                 .scaledToFit()
                 .frame(width: 100, height: 100)
+                .opacity(0.5)
         }
         .frame(width: 200, height: 200)
         .onAppear {
@@ -33,4 +34,5 @@ struct RippleEffectView: View {
 
 #Preview {
     RippleEffectView()
+        .background(.teal)
 }
