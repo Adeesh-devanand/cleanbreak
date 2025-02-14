@@ -5,13 +5,13 @@ class BluetoothManager: NSObject, ObservableObject, CBCentralManagerDelegate, CB
     @Published var isConnected = false
     @Published var peripheralName: String = "Unknown Device"
     
-    // Timer values from ESP32 (in milliseconds)
+    // Timer data from the SYNC characteristic (in milliseconds)
     @Published var persistentTotal: CGFloat = 0    // Field 1: Persistent Timer Total (ms)
     @Published var persistentElapsed: CGFloat = 0  // Field 2: Persistent Timer Elapsed (ms)
     @Published var coilTotal: CGFloat = 0          // Field 3: Coil Unlock Total Duration (ms)
     @Published var coilElapsed: CGFloat = 0          // Field 4: Coil Unlock Elapsed (ms)
     
-    // Computed progress for the persistent timer (optional)
+    // Computed progress (optional)
     var progress: CGFloat {
         return persistentTotal > 0 ? persistentElapsed / persistentTotal : 0
     }
@@ -19,9 +19,14 @@ class BluetoothManager: NSObject, ObservableObject, CBCentralManagerDelegate, CB
     private var centralManager: CBCentralManager!
     private var peripheral: CBPeripheral?
     
-    // Replace with your actual UUIDs from the ESP32 firmware:
-    private let serviceUUID = CBUUID(string: "XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX")
-    private let syncCharacteristicUUID = CBUUID(string: "XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX")
+    // Characteristics
+    private var timerCharacteristic: CBCharacteristic?
+    private var syncCharacteristic: CBCharacteristic?
+    
+    // UUIDs from the ESP32 firmware (as defined in your BLEManager.h file)
+    private let serviceUUID = CBUUID(string: "12345678-1234-5678-1234-56789abcdef0")
+    private let timerCharacteristicUUID = CBUUID(string: "12345678-1234-5678-1234-56789abcdef1")
+    private let syncCharacteristicUUID = CBUUID(string: "12345678-1234-5678-1234-56789abcdef3")
     
     override init() {
         super.init()
@@ -38,11 +43,12 @@ class BluetoothManager: NSObject, ObservableObject, CBCentralManagerDelegate, CB
         }
     }
     
-    func centralManager(_ central: CBCentralManager, didDiscover peripheral: CBPeripheral, advertisementData: [String : Any], rssi RSSI: NSNumber) {
+    func centralManager(_ central: CBCentralManager, didDiscover peripheral: CBPeripheral,
+                        advertisementData: [String : Any], rssi RSSI: NSNumber) {
         self.peripheral = peripheral
         self.peripheral?.delegate = self
-        self.centralManager.stopScan()
-        self.centralManager.connect(peripheral, options: nil)
+        centralManager.stopScan()
+        centralManager.connect(peripheral, options: nil)
     }
     
     func centralManager(_ central: CBCentralManager, didConnect peripheral: CBPeripheral) {
@@ -51,11 +57,13 @@ class BluetoothManager: NSObject, ObservableObject, CBCentralManagerDelegate, CB
         peripheral.discoverServices([serviceUUID])
     }
     
+    // MARK: - Peripheral Delegate
+    
     func peripheral(_ peripheral: CBPeripheral, didDiscoverServices error: Error?) {
         guard let services = peripheral.services else { return }
         for service in services {
             if service.uuid == serviceUUID {
-                peripheral.discoverCharacteristics([syncCharacteristicUUID], for: service)
+                peripheral.discoverCharacteristics([timerCharacteristicUUID, syncCharacteristicUUID], for: service)
             }
         }
     }
@@ -63,8 +71,11 @@ class BluetoothManager: NSObject, ObservableObject, CBCentralManagerDelegate, CB
     func peripheral(_ peripheral: CBPeripheral, didDiscoverCharacteristicsFor service: CBService, error: Error?) {
         guard let characteristics = service.characteristics else { return }
         for characteristic in characteristics {
-            if characteristic.uuid == syncCharacteristicUUID {
-                peripheral.setNotifyValue(true, for: characteristic) // Subscribe for changes
+            if characteristic.uuid == timerCharacteristicUUID {
+                timerCharacteristic = characteristic
+            } else if characteristic.uuid == syncCharacteristicUUID {
+                syncCharacteristic = characteristic
+                peripheral.setNotifyValue(true, for: characteristic) // Subscribe to changes
             }
         }
     }
@@ -72,11 +83,11 @@ class BluetoothManager: NSObject, ObservableObject, CBCentralManagerDelegate, CB
     func peripheral(_ peripheral: CBPeripheral, didUpdateValueFor characteristic: CBCharacteristic, error: Error?) {
         guard let data = characteristic.value else { return }
         if characteristic.uuid == syncCharacteristicUUID {
-            let syncData = parseSyncData(data)
-            persistentTotal = syncData.persistentTotal
-            persistentElapsed = syncData.persistentElapsed
-            coilTotal = syncData.coilTotal
-            coilElapsed = syncData.coilElapsed
+            let parsed = parseSyncData(data)
+            persistentTotal = parsed.persistentTotal
+            persistentElapsed = parsed.persistentElapsed
+            coilTotal = parsed.coilTotal
+            coilElapsed = parsed.coilElapsed
         }
     }
     
@@ -86,27 +97,33 @@ class BluetoothManager: NSObject, ObservableObject, CBCentralManagerDelegate, CB
     // Field 2: Persistent Timer Elapsed (ms)
     // Field 3: Coil Unlock Total Duration (ms)
     // Field 4: Coil Unlock Elapsed (ms)
-    // Also, if the timer is not running, cap the elapsed value to equal the total.
+    // If a timer isn't running, the elapsed field equals the total.
     private func parseSyncData(_ data: Data) -> (persistentTotal: CGFloat, persistentElapsed: CGFloat, coilTotal: CGFloat, coilElapsed: CGFloat) {
-        guard data.count >= 16 else {
-            return (0, 0, 0, 0)
-        }
+        guard data.count >= 16 else { return (0, 0, 0, 0) }
         
         let values: [UInt32] = data.withUnsafeBytes { pointer in
             let buffer = pointer.bindMemory(to: UInt32.self)
             return Array(buffer.prefix(4))
         }
         
-        // Convert from little-endian
+        // Convert values from little-endian
         let pTotal = CGFloat(UInt32(littleEndian: values[0]))
         let pElapsed = CGFloat(UInt32(littleEndian: values[1]))
         let cTotal = CGFloat(UInt32(littleEndian: values[2]))
         let cElapsed = CGFloat(UInt32(littleEndian: values[3]))
         
-        // Cap the elapsed values:
         let cappedPersistentElapsed = pElapsed > pTotal ? pTotal : pElapsed
         let cappedCoilElapsed = cElapsed > cTotal ? cTotal : cElapsed
         
         return (persistentTotal: pTotal, persistentElapsed: cappedPersistentElapsed, coilTotal: cTotal, coilElapsed: cappedCoilElapsed)
+    }
+    
+    // MARK: - Writing Timer Value
+    // Sends a new timer value to the ESP32 via the timer characteristic.
+    func writeTimerValue(_ value: UInt32) {
+        guard let timerChar = timerCharacteristic, let peripheral = peripheral else { return }
+        var timerValue = value.littleEndian
+        let data = Data(bytes: &timerValue, count: MemoryLayout<UInt32>.size)
+        peripheral.writeValue(data, for: timerChar, type: .withResponse)
     }
 }
