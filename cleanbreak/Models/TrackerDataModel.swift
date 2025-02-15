@@ -19,7 +19,7 @@ class TrackerDataModel: ObservableObject {
 
     private var cancellables: Set<AnyCancellable> = []
     
-    init(bluetoothManager: BluetoothManager) {
+    init(bluetoothManager: MockBluetoothManager) {
         // Subscribe to changes from BluetoothManager.
         bluetoothManager.$persistentTotal
             .sink { [weak self] newValue in
