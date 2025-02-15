@@ -35,8 +35,11 @@ struct DeviceStatusBar: View {
 }
 
 struct TimerArc: View {
-    var color: Color
-    var gapAngle: Double = 15 // Change this to control the bottom gap size
+    var state: TimerState
+    var color: Color {
+        return state == .locked ? .mint : .green
+    }
+    var gapAngle: Double = 50 // Change this to control the bottom gap size
     var progress: CGFloat
     var time: String
 
@@ -62,18 +65,13 @@ struct TimerArc: View {
                     .animation(.easeInOut(duration: 1), value: progress) // Ensures smooth updates
                 
                 // Lock Animation at the Center (Dynamic Size)
-                
-                ZStack {
-                    if progress == 1 {
-                        UnlockView(size: size, color: color)
-                            .transition(.opacity.combined(with: .scale)) // Smooth fade-in and scale effect
-                    } else {
-                        LockView(size: size, color: color)
-                            .transition(.opacity.combined(with: .scale)) // Smooth fade-in and scale effect
-                    }
+                Group {
+                    state == .unlock
+                        ? UnlockView(size: size, color: color)
+                        : LockView(size: size, color: color)
                 }
-                .animation(.easeInOut(duration: 0.5), value: color) // Animate transitions
-
+                .transition(.opacity.combined(with: .scale))
+                .animation(.easeInOut(duration: 0.25), value: color)
                 
                                 
                 // Time Remaining Displayed in the Gap
@@ -91,7 +89,7 @@ struct TimerArc: View {
 
 
 #Preview {
-    TimerArc(color: .mint, gapAngle: 50, progress: 0.1, time: "1h")
+    TimerArc(state: .unlocked, progress: 0.1, time: "1h")
             .frame(width: 200, height: 200)
     HStack(spacing: 20) {
         DeviceStatusBar(color: .mint, label: "Juice", progress: 0.75)
