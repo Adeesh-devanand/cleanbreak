@@ -3,62 +3,15 @@ import Combine
 
 class TrackerDataModel: ObservableObject {
     // Bluetooth connection properties
-    @Published var isConnected: Bool = false
-    @Published var peripheralName: String = "Unknown Device"
-
-    // Timer and progress tracking
-    @Published var totalMinutes: CGFloat = 180  // Total duration (e.g., 3 hours)
-    @Published var timeElapsed: CGFloat = 160  // Time left (e.g., 2h 15m)
-
-    // Device levels
-    @Published var juiceLevel: CGFloat = 1.0
-    @Published var batteryLevel: CGFloat = 0.5
-
-    var productName: String {
-        return "Clean Break v1.2"
-    }
-
-    private var bluetoothManager: MockBluetoothManager
-    private var cancellables = Set<AnyCancellable>()
-    private var timerCancellable: AnyCancellable?
-
-    init() {
-        self.bluetoothManager = MockBluetoothManager()
-//        bindToBluetoothManager()
-    }
-
-    /// Observes changes from BluetoothManager and updates UI properties
-    private func bindToBluetoothManager() {
-        bluetoothManager.$isConnected
-            .receive(on: DispatchQueue.main)
-            .assign(to: &$isConnected)
-
-        bluetoothManager.$peripheralName
-            .receive(on: DispatchQueue.main)
-            .assign(to: &$peripheralName)
-
-        bluetoothManager.$totalTimer
-            .receive(on: DispatchQueue.main)
-            .sink { [weak self] newValue in
-                self?.totalMinutes = newValue
-            }
-            .store(in: &cancellables)
-
-        bluetoothManager.$timeElapsed
-            .receive(on: DispatchQueue.main)
-            .sink { [weak self] newValue in
-                guard let self = self else { return }
-                self.timeElapsed = newValue
-            }
-            .store(in: &cancellables)
-
-        bluetoothManager.$juiceLevel
-            .receive(on: DispatchQueue.main)
-            .assign(to: &$juiceLevel)
-
-        bluetoothManager.$batteryLevel
-            .receive(on: DispatchQueue.main)
-            .assign(to: &$batteryLevel)
+    @Published var persistentTotal: CGFloat = 0
+    @Published var persistentElapsed: CGFloat = 0
+    @Published var coilTotal: CGFloat = 0
+    @Published var coilElapsed: CGFloat = 0
+    
+    // Computed state: if persistentElapsed < persistentTotal, then the device is locked.
+    // Otherwise, it’s unlocked.
+    var state: TimerState {
+        return persistentElapsed < persistentTotal ? .locked : .unlocked
     }
     
     /// Starts a countdown timer
@@ -68,8 +21,8 @@ class TrackerDataModel: ObservableObject {
             .autoconnect()
             .sink { [weak self] _ in
                 guard let self = self else { return }
-                if self.timeElapsed < self.totalMinutes {
-                    self.timeElapsed += 1  // Increase elapsed time
+                if self.persistentElapsed < self.totalMinutes {
+                    self.persistentElapsed += 1  // Increase elapsed time
                 } else {
                     self.timerCancellable?.cancel()  // Stop the timer when time runs out
                 }
@@ -78,19 +31,33 @@ class TrackerDataModel: ObservableObject {
 
 
     var progress: CGFloat {
-        return min (1, timeElapsed / totalMinutes) // Convert remaining time to progress (0-1)
+        if state == .locked {
+            return persistentTotal > 0 ? persistentElapsed / persistentTotal : 0
+        } else {
+            // If the coil timer is running, count down; if not, assume progress is full.
+            return coilTotal > 0 && coilElapsed > 0 ? 1.0 - (coilElapsed / coilTotal) : 1.0
+        }
     }
 
     func formatTime() -> String {
-        let hours = Int(totalMinutes - timeElapsed) / 60
-        let mins = Int(totalMinutes - timeElapsed) % 60
-
-        if hours >= 6 {
-            return "\(hours)h" // Show only hours if hours >= 6
-        } else if hours > 0 {
-            return "\(hours)h \(mins)m" // Show both hours and minutes if hours is 1-5
+        let remaining: CGFloat
+        if state == .locked {
+            remaining = persistentTotal - persistentElapsed
         } else {
-            return "\(mins)m" // Show only minutes if hours is 0
+            remaining = coilTotal - coilElapsed
+        }
+        
+        let totalSeconds = Int(remaining / 1000)
+        let hours = totalSeconds / 3600
+        let minutes = (totalSeconds % 3600) / 60
+        let seconds = totalSeconds % 60
+        
+        if hours > 0 {
+            return String(format: "%dh %dm", hours, minutes)
+        } else if minutes > 0 {
+            return String(format: "%dm %ds", minutes, seconds)
+        } else {
+            return String(format: "%ds", seconds)
         }
     }
 }
