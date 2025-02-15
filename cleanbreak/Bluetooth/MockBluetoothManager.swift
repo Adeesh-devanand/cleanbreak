@@ -1,43 +1,73 @@
 import SwiftUI
+import Combine
 
 class MockBluetoothManager: ObservableObject {
+    // Published properties to mimic BluetoothManager's values
     @Published var isConnected: Bool = false
-    @Published var peripheralName: String = "Mock Device"
+    @Published var persistentTotal: CGFloat = 180    // Example: 180 seconds total for persistent timer
+    @Published var persistentElapsed: CGFloat = 0      // Elapsed time for persistent timer
+    @Published var coilTotal: CGFloat = 60             // Example: 60 seconds total for coil timer
+    @Published var coilElapsed: CGFloat = 0            // Elapsed time for coil timer
+
+    // Cancellables for the countdown timers
+    private var persistentTimerCancellable: AnyCancellable?
+    private var coilTimerCancellable: AnyCancellable?
     
-    @Published var totalTimer: CGFloat = 180  // Default total time (e.g., 3 hours)
-    @Published var timeElapsed: CGFloat = 130  // Time elapsed
-    @Published var juiceLevel: CGFloat = 0.75  // 75% juice remaining
-    @Published var batteryLevel: CGFloat = 0.5  // 50% battery remaining
-
-    var progress: CGFloat {
-        return timeElapsed / totalTimer
+    // Simulate a Bluetooth connect event
+    func simulateConnect() {
+        isConnected = true
+        // Reset persistent timer and start counting
+        persistentElapsed = 0
+        startPersistentCountdown()
     }
-
-    // MARK: - Public Functions for Unit Testing
-
-    /// Simulates connecting to a peripheral
-    public func simulateConnection(_ connected: Bool, name: String = "Mock Device") {
-        isConnected = connected
-        peripheralName = name
+    
+    // Start the persistent timer countdown
+    public func startPersistentCountdown() {
+        persistentTimerCancellable?.cancel()
+        persistentTimerCancellable = Timer.publish(every: 2, on: .main, in: .common)
+            .autoconnect()
+            .sink { [weak self] _ in
+                guard let self = self else { return }
+                if self.persistentElapsed < self.persistentTotal {
+                    self.persistentElapsed += 1
+                } else {
+                    self.persistentTimerCancellable?.cancel()
+                }
+            }
     }
-
-    /// Simulates updating time elapsed
-    public func updateTimeElapsed(by minutes: CGFloat) {
-        timeElapsed = min(timeElapsed + minutes, totalTimer)
+    
+    // Simulate starting the coil timer.
+    // Note: When the coil timer starts, the persistent timer is considered ended.
+    func simulateStartCoilTimer() {
+        // Stop the persistent timer countdown
+        persistentTimerCancellable?.cancel()
+        // Set persistentElapsed to total to simulate that the persistent timer has finished
+        persistentElapsed = persistentTotal
+        // Reset and start the coil countdown
+        coilElapsed = 0
+        startCoilCountdown()
     }
-
-    /// Simulates updating juice level
-    public func updateJuiceLevel(_ level: CGFloat) {
-        juiceLevel = max(0, min(level, 1.0)) // Clamp between 0 and 1
+    
+    // Start the coil timer countdown
+    public func startCoilCountdown() {
+        coilTimerCancellable?.cancel()
+        coilTimerCancellable = Timer.publish(every: 2, on: .main, in: .common)
+            .autoconnect()
+            .sink { [weak self] _ in
+                guard let self = self else { return }
+                if self.coilElapsed < self.coilTotal {
+                    self.coilElapsed += 1
+                } else {
+                    self.coilTimerCancellable?.cancel()
+                    // When coil timer ends, reset the persistent timer and start its countdown automatically.
+                    self.resetPersistentTimer()
+                    self.startPersistentCountdown()
+                }
+            }
     }
-
-    /// Simulates updating battery level
-    public func updateBatteryLevel(_ level: CGFloat) {
-        batteryLevel = max(0, min(level, 1.0)) // Clamp between 0 and 1
-    }
-
-    /// Simulates resetting the timer
-    public func resetTimer() {
-        timeElapsed = 0
+    
+    // Resets the persistent timer
+    func resetPersistentTimer() {
+        persistentElapsed = 0
     }
 }
