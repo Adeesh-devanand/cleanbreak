@@ -25,9 +25,9 @@ struct MainView: View {
                 
 
                 // Lock Timer with Time Display
-                TimerArc(color: color, gapAngle: 50, progress: trackerData.progress, time: trackerData.formatTime())
-                    .frame(width: 250, height: 250)
-                    .padding(.top, 80)
+                TimerArc(state: trackerData.state, progress: trackerData.progress, time: trackerData.formatTime())
+                .frame(width: 250, height: 250)
+                .padding(.top, 80)
 
                 // Horizontal Device Status Bars (Juice & Battery)
                 HStack(spacing: 35) {
