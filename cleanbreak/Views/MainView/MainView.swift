@@ -30,13 +30,13 @@ struct MainView: View {
                 .padding(.top, 80)
 
                 // Horizontal Device Status Bars (Juice & Battery)
-                HStack(spacing: 35) {
-                    DeviceStatusBar(color: color, label: "Juice", progress: trackerData.juiceLevel)
-                    DeviceStatusBar(color: color, label: "Battery", progress: trackerData.batteryLevel)
-                }
-                .padding(.top, 40)
-                .padding(.horizontal, 30) // Reduce horizontal padding for better spacing
-                .frame(maxWidth: .infinity, minHeight: 50)
+                // HStack(spacing: 35) {
+                //     DeviceStatusBar(color: color, label: "Juice", progress: trackerData.juiceLevel)
+                //     DeviceStatusBar(color: color, label: "Battery", progress: trackerData.batteryLevel)
+                // }
+                // .padding(.top, 40)
+                // .padding(.horizontal, 30) // Reduce horizontal padding for better spacing
+                // .frame(maxWidth: .infinity, minHeight: 50)
 
                 Spacer()
             }
