@@ -11,11 +11,12 @@ class TrackerDataModel: ObservableObject {
     @Published var persistentTotal: CGFloat = 0   // in ms
     @Published var persistentElapsed: CGFloat = 0 // in ms
     @Published var coilTotal: CGFloat = 0         // in ms
-    @Published var coilElapsed: CGFloat = 0         // in ms
+    @Published var coilElapsed: CGFloat = 0       // in ms
     
     // Derived properties for UI:
     @Published var state: TimerState = .locked
     @Published var progress: CGFloat = 0
+    var productName: String = "CleanBreak v1"
 
     private var cancellables: Set<AnyCancellable> = []
     
@@ -68,24 +69,25 @@ class TrackerDataModel: ObservableObject {
         }
     }
     
-    // Formats remaining time based on current state.
-    func formatTime() -> String {
-        let remaining: CGFloat
-        if state == .locked {
-            remaining = persistentTotal - persistentElapsed
-        } else {
-            remaining = coilTotal - coilElapsed
+    // Computed property for the formatted remaining time.
+        var timeString: String {
+            let remaining: CGFloat
+            if state == .locked {
+                remaining = persistentTotal - persistentElapsed
+            } else {
+                remaining = coilTotal - coilElapsed
+            }
+            let totalSeconds = Int(remaining / 1000)
+            let hours = totalSeconds / 3600
+            let minutes = (totalSeconds % 3600) / 60
+            let seconds = totalSeconds % 60
+            
+            if hours > 0 {
+                return String(format: "%dh %dm", hours, minutes)
+            } else if minutes > 0 {
+                return String(format: "%dm %ds", minutes, seconds)
+            } else {
+                return String(format: "%ds", seconds)
+            }
         }
-        let totalSeconds = Int(remaining / 1000)
-        let hours = totalSeconds / 3600
-        let minutes = (totalSeconds % 3600) / 60
-        let seconds = totalSeconds % 60
-        if hours > 0 {
-            return String(format: "%dh %dm", hours, minutes)
-        } else if minutes > 0 {
-            return String(format: "%dm %ds", minutes, seconds)
-        } else {
-            return String(format: "%ds", seconds)
-        }
-    }
 }

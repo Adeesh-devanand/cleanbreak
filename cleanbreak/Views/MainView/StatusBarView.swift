@@ -66,12 +66,14 @@ struct TimerArc: View {
                 
                 // Lock Animation at the Center (Dynamic Size)
                 Group {
-                    state == .unlock
-                        ? UnlockView(size: size, color: color)
-                        : LockView(size: size, color: color)
+                    if state == .unlocked {
+                        UnlockView(size: size, color: color)
+                    } else {
+                        LockView(size: size, color: color)
+                    }
                 }
                 .transition(.opacity.combined(with: .scale))
-                .animation(.easeInOut(duration: 0.25), value: color)
+                .animation(.easeInOut(duration: 0.7), value: color)
                 
                                 
                 // Time Remaining Displayed in the Gap

@@ -1,11 +1,11 @@
 import SwiftUI
 
 struct BluetoothView: View {
-    @ObservedObject var trackerData: TrackerDataModel
+    @ObservedObject var bluetoothManager: MockBluetoothManager
     @State private var isBluetoothEnabled = false
     
-    init(trackerData: TrackerDataModel, isBluetoothEnabled: Bool = false) {
-        self.trackerData = trackerData
+    init(bluetoothManager: MockBluetoothManager, isBluetoothEnabled: Bool = false) {
+        self.bluetoothManager = bluetoothManager
     }
 
     var body: some View {
@@ -76,7 +76,7 @@ struct BluetoothView: View {
                         }
                         
                         Button(action: {
-                            trackerData.isConnected = true
+                            bluetoothManager.isConnected = true
                         }) {
                             Text("Simulate Connect")
                                 .fontWeight(.bold)
@@ -131,5 +131,5 @@ struct BluetoothView: View {
 }
 
 #Preview {
-    BluetoothView(trackerData: TrackerDataModel())
+    BluetoothView(bluetoothManager: MockBluetoothManager())
 }

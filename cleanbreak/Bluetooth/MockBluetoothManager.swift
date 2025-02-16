@@ -2,19 +2,19 @@ import SwiftUI
 import Combine
 
 class MockBluetoothManager: ObservableObject {
-    // Published properties to mimic BluetoothManager's values
+    // Published properties (in milliseconds)
     @Published var isConnected: Bool = false
-    @Published var persistentTotal: CGFloat = 180    // Example: 180 seconds total for persistent timer
-    @Published var persistentElapsed: CGFloat = 0      // Elapsed time for persistent timer
-    @Published var coilTotal: CGFloat = 60             // Example: 60 seconds total for coil timer
-    @Published var coilElapsed: CGFloat = 0            // Elapsed time for coil timer
+    @Published var persistentTotal: CGFloat = 180_000    // 180 seconds in ms
+    @Published var persistentElapsed: CGFloat = 0       // in ms
+    @Published var coilTotal: CGFloat = 10_000          // 60 seconds in ms
+    @Published var coilElapsed: CGFloat = 0        // in ms
 
     // Cancellables for the countdown timers
     private var persistentTimerCancellable: AnyCancellable?
     private var coilTimerCancellable: AnyCancellable?
     
     // Simulate a Bluetooth connect event
-    func simulateConnect() {
+    public func simulateConnect() {
         isConnected = true
         // Reset persistent timer and start counting
         persistentElapsed = 0
@@ -22,14 +22,15 @@ class MockBluetoothManager: ObservableObject {
     }
     
     // Start the persistent timer countdown
-    public func startPersistentCountdown() {
+    private func startPersistentCountdown() {
         persistentTimerCancellable?.cancel()
-        persistentTimerCancellable = Timer.publish(every: 2, on: .main, in: .common)
+        persistentTimerCancellable = Timer.publish(every: 1, on: .main, in: .common)
             .autoconnect()
             .sink { [weak self] _ in
                 guard let self = self else { return }
+                // Increase by 1000 ms every 1 second
                 if self.persistentElapsed < self.persistentTotal {
-                    self.persistentElapsed += 1
+                    self.persistentElapsed += 1000
                 } else {
                     self.persistentTimerCancellable?.cancel()
                 }
@@ -37,29 +38,33 @@ class MockBluetoothManager: ObservableObject {
     }
     
     // Simulate starting the coil timer.
-    // Note: When the coil timer starts, the persistent timer is considered ended.
-    func simulateStartCoilTimer() {
+    // When the coil timer starts, the persistent timer is considered ended.
+    public func simulateStartCoilTimer() {
         // Stop the persistent timer countdown
-        persistentTimerCancellable?.cancel()
-        // Set persistentElapsed to total to simulate that the persistent timer has finished
-        persistentElapsed = persistentTotal
-        // Reset and start the coil countdown
-        coilElapsed = 0
-        startCoilCountdown()
+        if persistentTotal == persistentElapsed {
+            persistentTimerCancellable?.cancel()
+            // Set persistentElapsed to total to simulate that the persistent timer has finished
+            persistentElapsed = persistentTotal
+            // Reset and start the coil countdown
+            coilElapsed = 0
+            startCoilCountdown()
+        }
     }
     
     // Start the coil timer countdown
-    public func startCoilCountdown() {
+    private func startCoilCountdown() {
         coilTimerCancellable?.cancel()
-        coilTimerCancellable = Timer.publish(every: 2, on: .main, in: .common)
+        coilTimerCancellable = Timer.publish(every: 1, on: .main, in: .common)
             .autoconnect()
             .sink { [weak self] _ in
                 guard let self = self else { return }
+                // Increase by 1000 ms every 1 seconds
                 if self.coilElapsed < self.coilTotal {
-                    self.coilElapsed += 1
+                    self.coilElapsed += 1000
                 } else {
                     self.coilTimerCancellable?.cancel()
-                    // When coil timer ends, reset the persistent timer and start its countdown automatically.
+                    // When coil timer ends, reset the persistent timer and restart its countdown.
+                    coilElapsed = 0
                     self.resetPersistentTimer()
                     self.startPersistentCountdown()
                 }
@@ -67,7 +72,7 @@ class MockBluetoothManager: ObservableObject {
     }
     
     // Resets the persistent timer
-    func resetPersistentTimer() {
+    private func resetPersistentTimer() {
         persistentElapsed = 0
     }
 }

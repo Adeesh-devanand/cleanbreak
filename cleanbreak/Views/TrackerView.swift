@@ -4,8 +4,11 @@ struct TrackerView: View {
     @ObservedObject var trackerData: TrackerDataModel
     
     @State private var selectedTab = 0 // Tracks the selected tab
+    private var bluetoothManager: MockBluetoothManager
     
-    init(trackerData: TrackerDataModel) {
+    init(trackerData: TrackerDataModel, bluetoothManager: MockBluetoothManager) {
+        self.bluetoothManager = bluetoothManager
+        
         // Customize the tab bar appearance (iOS 15+)
         let appearance = UITabBarAppearance()
         appearance.configureWithTransparentBackground() // Makes tab bar translucent
@@ -22,7 +25,7 @@ struct TrackerView: View {
 
     var body: some View {
         TabView(selection: $selectedTab) {
-            MainView(trackerData: self.trackerData) // The main calorie/macros screen
+            MainView(trackerData: self.trackerData, bluetoothManager: bluetoothManager) // The main calorie/macros screen
                 .tabItem {
                     Image(systemName: "flame.fill")
                     Text("Track")
@@ -48,5 +51,7 @@ struct TrackerView: View {
 }
 
 #Preview {
-    TrackerView(trackerData: TrackerDataModel())
+    var bluetoothManager = MockBluetoothManager()
+    MainView(trackerData: TrackerDataModel(bluetoothManager: bluetoothManager), bluetoothManager: bluetoothManager)
 }
+

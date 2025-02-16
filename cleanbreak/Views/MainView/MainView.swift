@@ -2,9 +2,11 @@ import SwiftUI
 
 struct MainView: View {
     @ObservedObject private var trackerData: TrackerDataModel
+    private var bluetoothManager: MockBluetoothManager
     
-    init(trackerData: TrackerDataModel) {
+    init(trackerData: TrackerDataModel, bluetoothManager: MockBluetoothManager) {
         self.trackerData = trackerData
+        self.bluetoothManager = bluetoothManager
     }
     
     var color: Color {
@@ -23,27 +25,39 @@ struct MainView: View {
                     .foregroundColor(.gray)
                     .frame(width: 300, height: 50)
                 
+                Spacer()
 
                 // Lock Timer with Time Display
-                TimerArc(state: trackerData.state, progress: trackerData.progress, time: trackerData.formatTime())
+                TimerArc(state: trackerData.state, progress: trackerData.progress, time: trackerData.timeString)
                 .frame(width: 250, height: 250)
-                .padding(.top, 80)
-
                 // Horizontal Device Status Bars (Juice & Battery)
                 // HStack(spacing: 35) {
                 //     DeviceStatusBar(color: color, label: "Juice", progress: trackerData.juiceLevel)
                 //     DeviceStatusBar(color: color, label: "Battery", progress: trackerData.batteryLevel)
                 // }
-                // .padding(.top, 40)
+                .padding(.bottom, 40)
                 // .padding(.horizontal, 30) // Reduce horizontal padding for better spacing
                 // .frame(maxWidth: .infinity, minHeight: 50)
 
                 Spacer()
+                
+                Button(action: {
+                    bluetoothManager.simulateStartCoilTimer()
+                }) {
+                    Text("Simulate puff")
+                        .fontWeight(.bold)
+                        .font(.footnote)
+                        .foregroundColor(Color.white)
+                        .cornerRadius(100)
+                        .padding(.bottom, 40)
+                    
+                }
             }
         }
-    }
+    }	
 }
 
 #Preview {
-    MainView(trackerData: TrackerDataModel())
+    var bluetoothManager = MockBluetoothManager()
+    MainView(trackerData: TrackerDataModel(bluetoothManager: bluetoothManager), bluetoothManager: bluetoothManager)
 }
