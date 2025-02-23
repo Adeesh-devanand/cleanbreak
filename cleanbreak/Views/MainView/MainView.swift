@@ -2,11 +2,9 @@ import SwiftUI
 
 struct MainView: View {
     @ObservedObject private var trackerData: TrackerDataModel
-    private var bluetoothManager: MockBluetoothManager
     
-    init(trackerData: TrackerDataModel, bluetoothManager: MockBluetoothManager) {
+    init(trackerData: TrackerDataModel) {
         self.trackerData = trackerData
-        self.bluetoothManager = bluetoothManager
     }
     
     var color: Color {
@@ -41,23 +39,22 @@ struct MainView: View {
 
                 Spacer()
                 
-                Button(action: {
-                    bluetoothManager.simulateStartCoilTimer()
-                }) {
-                    Text("Simulate puff")
-                        .fontWeight(.bold)
-                        .font(.footnote)
-                        .foregroundColor(Color.white)
-                        .cornerRadius(100)
-                        .padding(.bottom, 40)
-                    
-                }
+//                Button(action: {
+//                    bluetoothManager.simulateStartCoilTimer()
+//                }) {
+//                    Text("Simulate puff")
+//                        .fontWeight(.bold)
+//                        .font(.footnote)
+//                        .foregroundColor(Color.white)
+//                        .cornerRadius(100)
+//                        .padding(.bottom, 40)
+//                    
+//                }
             }
         }
     }	
 }
 
 #Preview {
-    var bluetoothManager = MockBluetoothManager()
-    MainView(trackerData: TrackerDataModel(bluetoothManager: bluetoothManager), bluetoothManager: bluetoothManager)
+    MainView(trackerData: TrackerDataModel(bluetoothManager: BluetoothManager()))
 }

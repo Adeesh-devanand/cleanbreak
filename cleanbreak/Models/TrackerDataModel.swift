@@ -8,23 +8,23 @@ enum TimerState {
 
 class TrackerDataModel: ObservableObject {
     // These properties are updated from BluetoothManager
-    @Published var persistentTotal: CGFloat = 0   // in ms
-    @Published var persistentElapsed: CGFloat = 0 // in ms
-    @Published var coilTotal: CGFloat = 0         // in ms
-    @Published var coilElapsed: CGFloat = 0       // in ms
+    @Published var persistentDuration: CGFloat = 0   // in ms
+    @Published var persistentElapsed: CGFloat = 0    // in ms
+    @Published var coilDuration: CGFloat = 0         // in ms
+    @Published var coilRemaining: CGFloat = 0        // in ms
     
     // Derived properties for UI:
     @Published var state: TimerState = .locked
     @Published var progress: CGFloat = 0
-    var productName: String = "CleanBreak v1"
+    var productName: String = "Sylo"
 
     private var cancellables: Set<AnyCancellable> = []
     
-    init(bluetoothManager: MockBluetoothManager) {
+    init(bluetoothManager: BluetoothManager) {
         // Subscribe to changes from BluetoothManager.
-        bluetoothManager.$persistentTotal
+        bluetoothManager.$persistentDuation
             .sink { [weak self] newValue in
-                self?.persistentTotal = newValue
+                self?.persistentDuration = newValue
                 self?.updateStateAndProgress()
             }
             .store(in: &cancellables)
@@ -36,16 +36,16 @@ class TrackerDataModel: ObservableObject {
             }
             .store(in: &cancellables)
         
-        bluetoothManager.$coilTotal
+        bluetoothManager.$coilDuration
             .sink { [weak self] newValue in
-                self?.coilTotal = newValue
+                self?.coilDuration = newValue
                 self?.updateStateAndProgress()
             }
             .store(in: &cancellables)
         
-        bluetoothManager.$coilElapsed
+        bluetoothManager.$coilRemaining
             .sink { [weak self] newValue in
-                self?.coilElapsed = newValue
+                self?.coilRemaining = newValue
                 self?.updateStateAndProgress()
             }
             .store(in: &cancellables)
@@ -53,19 +53,12 @@ class TrackerDataModel: ObservableObject {
     
     private func updateStateAndProgress() {
         // Determine state:
-        if persistentElapsed < persistentTotal {
+        if persistentElapsed < persistentDuration {
             state = .locked
-            // Locked state: progress counts up
-            progress = persistentTotal > 0 ? persistentElapsed / persistentTotal : 0
+            progress = persistentElapsed / persistentDuration
         } else {
             state = .unlocked
-            // Unlocked state: if the coil timer is running, count down,
-            // otherwise, assume progress is full (1.0)
-            if coilTotal > 0 && coilElapsed > 0 {
-                progress = 1.0 - (coilElapsed / coilTotal)
-            } else {
-                progress = 1.0
-            }
+            progress = coilRemaining / coilDuration
         }
     }
     
@@ -73,9 +66,9 @@ class TrackerDataModel: ObservableObject {
         var timeString: String {
             let remaining: CGFloat
             if state == .locked {
-                remaining = persistentTotal - persistentElapsed
+                remaining = persistentDuration - persistentElapsed
             } else {
-                remaining = coilTotal - coilElapsed
+                remaining = coilRemaining
             }
             let totalSeconds = Int(remaining / 1000)
             let hours = totalSeconds / 3600

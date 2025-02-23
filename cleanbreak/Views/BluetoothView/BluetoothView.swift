@@ -1,10 +1,9 @@
 import SwiftUI
 
 struct BluetoothView: View {
-    @ObservedObject var bluetoothManager: MockBluetoothManager
-    @State private var isBluetoothEnabled = false
+    @ObservedObject var bluetoothManager: BluetoothManager
     
-    init(bluetoothManager: MockBluetoothManager, isBluetoothEnabled: Bool = false) {
+    init(bluetoothManager: BluetoothManager) {
         self.bluetoothManager = bluetoothManager
     }
 
@@ -13,7 +12,7 @@ struct BluetoothView: View {
             LinearGradient(gradient: Gradient(colors: [Color.mint.opacity(0.8), Color.teal]),
                            startPoint: .top, endPoint: .bottom)
                 .ignoresSafeArea()
-            if isBluetoothEnabled {
+            if (bluetoothManager.bluetoothState == .poweredOn) {
                 // Bluetooth ON: Show Ripple Effect & Scanning UI
 
                 VStack {
@@ -63,33 +62,32 @@ struct BluetoothView: View {
                     .padding(.vertical, 50)
                     
                     Spacer()
-                    
-                    HStack(spacing: 20){
-                        Button(action: {
-                            isBluetoothEnabled = false// Action for when user can't find device
-                        }) {
-                            Text("Turn off Bluetooth")
-                                .fontWeight(.bold)
-                                .font(.footnote)
-                                .foregroundColor(Color.white)
-                                .cornerRadius(100)
-                        }
-                        
-                        Button(action: {
-                            bluetoothManager.isConnected = true
-                        }) {
-                            Text("Simulate Connect")
-                                .fontWeight(.bold)
-                                .font(.footnote)
-                                .foregroundColor(Color.white)
-                                .cornerRadius(100)
-                        }
-                    }
+//                    
+//                    HStack(spacing: 20){
+//                        Button(action: {
+//                            isBluetoothEnabled = false// Action for when user can't find device
+//                        }) {
+//                            Text("Turn off Bluetooth")
+//                                .fontWeight(.bold)
+//                                .font(.footnote)
+//                                .foregroundColor(Color.white)
+//                                .cornerRadius(100)
+//                        }
+//                        
+//                        Button(action: {
+//                            bluetoothManager.isConnected = true
+//                        }) {
+//                            Text("Simulate Connect")
+//                                .fontWeight(.bold)
+//                                .font(.footnote)
+//                                .foregroundColor(Color.white)
+//                                .cornerRadius(100)
+//                        }
+//                    }
                 }
             } else {
                VStack {
                    Spacer()
-                   // Centered Ripple Effect
                    Image("bluetooth")
                        .resizable()
                        .scaledToFit()
@@ -109,7 +107,7 @@ struct BluetoothView: View {
 
                        // "CAN'T FIND PRODUCT" Button
                        Button(action: {
-                           isBluetoothEnabled = true// Action for when user can't find device
+                           openBluetoothSettings()
                        }) {
                            Text("TURN ON")
                                .fontWeight(.bold)
@@ -128,8 +126,15 @@ struct BluetoothView: View {
             }
         }
     }
+    
+    private func openBluetoothSettings() {
+            guard let url = URL(string: "App-Prefs:root=Bluetooth") else { return }
+            if UIApplication.shared.canOpenURL(url) {
+                UIApplication.shared.open(url)
+            }
+        }
 }
 
 #Preview {
-    BluetoothView(bluetoothManager: MockBluetoothManager())
+    BluetoothView(bluetoothManager: BluetoothManager())
 }
