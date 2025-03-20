@@ -16,7 +16,7 @@ class TrackerDataModel: ObservableObject {
     // Derived properties for UI:
     @Published var state: TimerState = .locked
     @Published var progress: CGFloat = 0
-    var productName: String = "Sylo"
+    var productName: String = "Vetra"
 
     private var cancellables: Set<AnyCancellable> = []
     
