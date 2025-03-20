@@ -15,7 +15,7 @@ class TrackerDataModel: ObservableObject {
     @Published var batteryLevel: CGFloat = 0.5
 
     var productName: String {
-        return "Clean Break v1.2"
+        return "Vetra v0.0"
     }
 
     private var bluetoothManager: MockBluetoothManager
