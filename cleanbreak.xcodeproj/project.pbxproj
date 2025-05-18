@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 77;
+	objectVersion = 70;
 	objects = {
 
 /* Begin PBXContainerItemProxy section */
@@ -30,21 +30,9 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
-		F82DB7F72D58BDE6005777E8 /* cleanbreak */ = {
-			isa = PBXFileSystemSynchronizedRootGroup;
-			path = cleanbreak;
-			sourceTree = "<group>";
-		};
-		F82DB80E2D58BDE7005777E8 /* cleanbreakTests */ = {
-			isa = PBXFileSystemSynchronizedRootGroup;
-			path = cleanbreakTests;
-			sourceTree = "<group>";
-		};
-		F82DB8182D58BDE7005777E8 /* cleanbreakUITests */ = {
-			isa = PBXFileSystemSynchronizedRootGroup;
-			path = cleanbreakUITests;
-			sourceTree = "<group>";
-		};
+		F82DB7F72D58BDE6005777E8 /* cleanbreak */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = cleanbreak; sourceTree = "<group>"; };
+		F82DB80E2D58BDE7005777E8 /* cleanbreakTests */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = cleanbreakTests; sourceTree = "<group>"; };
+		F82DB8182D58BDE7005777E8 /* cleanbreakUITests */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = cleanbreakUITests; sourceTree = "<group>"; };
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -171,7 +159,7 @@
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
 				LastSwiftUpdateCheck = 1620;
-				LastUpgradeCheck = 1620;
+				LastUpgradeCheck = 1630;
 				TargetAttributes = {
 					F82DB7F42D58BDE6005777E8 = {
 						CreatedOnToolsVersion = 16.2;
@@ -187,6 +175,7 @@
 				};
 			};
 			buildConfigurationList = F82DB7F02D58BDE6005777E8 /* Build configuration list for PBXProject "cleanbreak" */;
+			compatibilityVersion = "Xcode 15.0";
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
 			knownRegions = (
@@ -195,7 +184,6 @@
 			);
 			mainGroup = F82DB7EC2D58BDE6005777E8;
 			minimizedProjectReferenceProxies = 1;
-			preferredProjectObjectVersion = 77;
 			productRefGroup = F82DB7F62D58BDE6005777E8 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
@@ -303,6 +291,7 @@
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
+				DEAD_CODE_STRIPPING = YES;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
@@ -364,6 +353,7 @@
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
+				DEAD_CODE_STRIPPING = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
@@ -391,6 +381,7 @@
 				CODE_SIGN_ENTITLEMENTS = cleanbreak/cleanbreak.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_ASSET_PATHS = "\"cleanbreak/Preview Content\"";
 				DEVELOPMENT_TEAM = 9KZ4CCANYU;
 				ENABLE_PREVIEWS = YES;
@@ -430,6 +421,7 @@
 				CODE_SIGN_ENTITLEMENTS = cleanbreak/cleanbreak.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_ASSET_PATHS = "\"cleanbreak/Preview Content\"";
 				DEVELOPMENT_TEAM = 9KZ4CCANYU;
 				ENABLE_PREVIEWS = YES;
@@ -467,6 +459,7 @@
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEAD_CODE_STRIPPING = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 18.2;
 				MACOSX_DEPLOYMENT_TARGET = 14.7;
@@ -489,6 +482,7 @@
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEAD_CODE_STRIPPING = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 18.2;
 				MACOSX_DEPLOYMENT_TARGET = 14.7;
@@ -510,6 +504,7 @@
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEAD_CODE_STRIPPING = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 18.2;
 				MACOSX_DEPLOYMENT_TARGET = 14.7;
@@ -531,6 +526,7 @@
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEAD_CODE_STRIPPING = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 18.2;
 				MACOSX_DEPLOYMENT_TARGET = 14.7;
